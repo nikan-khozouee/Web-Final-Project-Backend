@@ -101,9 +101,11 @@ app.post("/login", async (request, response) => {
     await sql`SELECT * FROM users WHERE username = ${username} AND password = ${password};`;
   console.log(foundUser);
   if (foundUser && foundUser.length > 0) {
-    response.send(foundUser);
+    response.send({ user: foundUser[0] });
+    return;
   }
   response.send({ error: true, message: "wrong username and/or password" });
+  return;
 });
 
 app.listen(port, () =>

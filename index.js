@@ -93,6 +93,19 @@ app.get("/games", async (req, res) => {
   }
 });
 
+app.post("/login", async (request, response) => {
+  const { username, password } = request.body;
+  const headers = request.headers;
+  console.log(headers);
+  const foundUser =
+    await sql`SELECT * FROM users WHERE username = ${username} AND password = ${password};`;
+  console.log(foundUser);
+  if (foundUser && foundUser.length > 0) {
+    response.send(foundUser);
+  }
+  response.send({ error: true, message: "wrong username and/or password" });
+});
+
 app.listen(port, () =>
   console.log(`My App listening at http://localhost:${port}`)
 );

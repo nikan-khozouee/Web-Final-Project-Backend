@@ -13,7 +13,7 @@ app.use(function (_, res, next) {
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
+    "X-Requested-With,content-type,Authorization"
   );
   res.setHeader("Access-Control-Allow-Credentials", true);
   next();
@@ -102,6 +102,14 @@ app.post("/login", async (request, response) => {
   console.log(foundUser);
   if (foundUser && foundUser.length > 0) {
     response.send({ user: foundUser[0] });
+    response.send({
+      user: {
+        user_id: foundUser[0].user_id,
+        username: foundUser[0].username,
+        email: foundUser[0].email,
+        role: foundUser[0].role,
+      },
+    });
     return;
   }
   response.send({ error: true, message: "wrong username and/or password" });

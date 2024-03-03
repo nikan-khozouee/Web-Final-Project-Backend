@@ -49,7 +49,9 @@ getPgVersion();
 
 app.get("/games", async (req, res) => {
   const { search, sort, genre, developer, rating, order } = req.query;
-  let query = `SELECT * FROM games`;
+  let query = `SELECT games.title, genres.name, game_developers.developer_name, release_date, age_rating, views FROM games
+  JOIN genres ON games.genre_id = genres.genre_id
+  JOIN  game_developers on games.developer_id = game_developers.developer_id`;
   let conditions = [];
   let queryParams = [];
 
@@ -59,17 +61,17 @@ app.get("/games", async (req, res) => {
   }
 
   if (genre) {
-    conditions.push(`genre_id = $${conditions.length + 1}`);
+    conditions.push(`genres.name ILIKE $${conditions.length + 1}`);
     queryParams.push(genre);
   }
 
   if (developer) {
-    conditions.push(`developer_id = $${conditions.length + 1}`);
+    conditions.push(`developer_name ILIKE $${conditions.length + 1}`);
     queryParams.push(developer);
   }
 
   if (rating) {
-    conditions.push(`age_rating = $${conditions.length + 1}`);
+    conditions.push(`age_rating ILIKE $${conditions.length + 1}`);
     queryParams.push(rating);
   }
 
@@ -78,7 +80,7 @@ app.get("/games", async (req, res) => {
   }
 
   const validSortFields = ["release_date", "views", "title"];
-  const sortOrder = order === "desc" ? "DESC" : "ASC"; // Defaults to ASC if order is not 'desc'
+  const sortOrder = order === "desc" ? "DESC" : "ASC";
   if (sort && validSortFields.includes(sort)) {
     query += ` ORDER BY ${sort} ${sortOrder}`;
   } else if (sort) {
@@ -86,10 +88,28 @@ app.get("/games", async (req, res) => {
   }
 
   try {
-    const result = await sql.unsafe(query, queryParams); // Ensure sql.unsafe is properly handled or replaced with a safer method
+    const result = await sql.unsafe(query, queryParams);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/genres", async (request, response) => {
+  try {
+    const result = await sql`SELECT * FROM genres`;
+    response.status(200).json(result);
+  } catch (error) {
+    response.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/game_developers", async (request, response) => {
+  try {
+    const result = await sql`SELECT * FROM game_developers`;
+    response.status(200).json(result);
+  } catch (error) {
+    response.status(500).json({ error: "Internal server error" });
   }
 });
 

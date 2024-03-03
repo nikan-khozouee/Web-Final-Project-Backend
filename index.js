@@ -1,6 +1,7 @@
 const express = require("express");
 const postgres = require("postgres");
 const app = express();
+require("dotenv").config();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -19,14 +20,14 @@ app.use(function (_, res, next) {
   next();
 });
 
-const port = 3000;
+const port = process.env.PORT;
 
 // app.js
-PGHOST = "ep-mute-frost-a2hbnuw0.eu-central-1.aws.neon.tech";
-PGDATABASE = "final-project";
-PGUSER = "nikarrow81@gmail.com";
-PGPASSWORD = "Dfua0W8KBwcX";
-ENDPOINT_ID = "ep-mute-frost-a2hbnuw0";
+PGHOST = process.env.PGHOST;
+PGDATABASE = process.env.PGDATABASE;
+PGUSER = process.env.PGUSER;
+PGPASSWORD = process.env.PGPASSWORD;
+ENDPOINT_ID = process.env.ENDPOINT_ID;
 
 const sql = postgres({
   host: PGHOST,
@@ -121,7 +122,6 @@ app.post("/login", async (request, response) => {
     await sql`SELECT * FROM users WHERE username = ${username} AND password = ${password};`;
   console.log(foundUser);
   if (foundUser && foundUser.length > 0) {
-    response.send({ user: foundUser[0] });
     response.send({
       user: {
         user_id: foundUser[0].user_id,
